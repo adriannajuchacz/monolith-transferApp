@@ -1,7 +1,7 @@
 const express = require('express');
 
 const app = express();
-/* mocked DB balance */ 
+/* mocked DB balance */  
 let balance = 0;
 
 /* ENDPOINTS START */
