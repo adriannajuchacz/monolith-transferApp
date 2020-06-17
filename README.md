@@ -10,5 +10,5 @@ npm start
 
 ## Methods
   This method adds 100€ to the mocked account's balance  
-  `POST` /transferMoney
+  `POST localhost:5000/transferMoney` 
 
