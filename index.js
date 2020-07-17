@@ -3,6 +3,9 @@ const app = express();
 const db = require("./db");
 
 /* ENDPOINTS START */
+app.get("/test", async (req, res) => {
+  res.status(200).send(`use POST transferMoney`);
+});
 app.post("/transferMoney", async (req, res) => {
   let currentBalance = await db.getBalance();
   currentBalance = currentBalance + 100;
