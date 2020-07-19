@@ -1,54 +1,46 @@
 const { Pool } = require("pg");
-const client = new Pool({
+const pool = new Pool({
   host: process.env.RDS_HOSTNAME,
-  user: "postgres",
+  user: process.env.RDS_USERNAME,
   password: process.env.RDS_PASSWORD,
   port: process.env.RDS_PORT,
-  name: process.env.RDS_DB_NAME,
+  database: process.env.RDS_DB_NAME,
 });
 
-async function getBalance() {
-  await client
+async function startPool() {
+  await pool
     .connect()
     .then()
     .catch((e) => {
       console.log(e);
     });
-  const res = await client.query("select * from balances;");
-  console.log("fetched: ", res.rows[0].balance);
-  let currentBalance = res.rows[0].balance;
-  return currentBalance;
+  return;
+}
+
+async function endPool() {
+  await pool.end();
+  return;
+}
+
+async function getBalance() {
+  try {
+    const res = await pool.query("select * from balances;");
+    let currentBalance = res.rows[0].balance;
+    return currentBalance;
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 async function setBalance(bal) {
-  await client
-    .connect()
-    .then()
-    .catch((e) => {
-      console.log(e);
-      return false;
-    });
-  await client
-    .query(`update balances set balance = ${bal};`)
-    .then()
-    .catch((e) => {
-      console.log(e);
-      return false;
-    });
-  return true;
-}
-
-async function endClient() {
-  await client
-    .connect()
-    .then()
-    .catch((e) => {
-      console.log(e);
-    });
-  client.end();
-  return;
+  try {
+    await pool.query(`update balances set balance = ${bal};`);
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 module.exports.getBalance = getBalance;
 module.exports.setBalance = setBalance;
-module.exports.endClient = endClient;
+module.exports.startPool = startPool;
+module.exports.endPool = endPool;

@@ -1,33 +1,39 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const db = require("./db");
 
-/* ENDPOINTS START */
-app.get("/test", async (req, res) => {
-  res.status(200).send(`use POST transferMoney`);
-});
-app.post("/transferMoney", async (req, res) => {
-  let currentBalance = await db.getBalance();
-  currentBalance = currentBalance + 100;
-  await db.setBalance(currentBalance);
-  let newBalance = await db.getBalance();
-  if (newBalance !== currentBalance) {
-    throw "sth went wrong";
-  }
-  res.status(200).send(`current balance: ${newBalance}`);
-});
-/* ENDPOINTS END */
+db.startPool();
 
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => console.log(`The server is running on ${PORT}`));
 
+/* ENDPOINTS START */
+app.get("/test", async (req, res) => {
+  res.status(200).send(`use POST transferMoney`);
+});
+
+app.post("/transferMoney", async (req, res) => {
+  try {
+    let bal = await db.getBalance();
+    await db.setBalance(bal + 100);
+    res.status(200).send(`current balance: ${bal}`);
+    return;
+  } catch (e) {
+    res.status(500).send(`${e}`);
+  }
+});
+/* ENDPOINTS END */
+
+
+/* CLEAN SHUTDOWN */
 process.stdin.resume(); //so the program will not close instantly
 async function exitHandler(options, exitCode) {
   if (options.cleanup) console.log("clean");
   if (exitCode || exitCode === 0) console.log(exitCode);
   if (options.exit) {
-    await db.endClient();
+    await db.endPool();
     process.exit();
   }
 }
