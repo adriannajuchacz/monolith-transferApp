@@ -17,7 +17,8 @@ app.get("/test", async (req, res) => {
 app.post("/transferMoney", async (req, res) => {
   try {
     let bal = await db.getBalance();
-    await db.setBalance(bal + 100);
+    bal = bal + 100;
+    await db.setBalance(bal);
     res.status(200).send(`current balance: ${bal}`);
     return;
   } catch (e) {
